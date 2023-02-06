@@ -61,7 +61,7 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\User
      */
-    protected function create(array $data)
+     protected function create(array $data)
     {
         return User::create([
             'username' => $data['username'],
@@ -70,29 +70,42 @@ class RegisterController extends Controller
         ]);
     }
 
-    public function redirectPath()
-{
-return 'post/index';
-}
-
-
 
     // public function registerForm(){
     //     return view("auth.register");
     // }
 
-    public function register(Request $request){
+public function register(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $request->validate(
+                [
+                    'username' => 'required|string|max:255',
+                    'mail' => 'required|string|email|max:255|unique:users',
+                    'password' => 'required|min:4|confirmed',
+                    'password_confirmation' => 'required',
+                ],
+                ['username.required' => 'ユーザーネームは必須項目です。',
+                'mail.required' => 'メールアドレスは必須項目です。',
+                'mail.email' => 'メールアドレスを正しく入力してください。',
+                'mail.unique' => 'このメールアドレスは既に使われています。',
+                'password.required' => 'パスワードは必須項目です。',
+                'password.min' => 'パスワードは4文字以上で入力してください。',
+                'password.confirmed'=> '確認用パスワードが一致しません。',
+                'password_confirmation.required' => '確認用パスワードは必須項目です。',
+                ],
+            );
 
-        if($request->isMethod('post')){
-            $data = $request->input();
-
+        $data = $request->input();
             $this->create($data);
-            return redirect('added');
+            return redirect("/added");
         }
-        return view('auth.register');
+        return view("auth.register");
     }
 
-    public function added(){
-        return view('auth.added');
+
+    public function added(Request $request){
+        $username = $request->input('username');
+        return view('auth.added', ['username'=>$username]);
     }
 }
