@@ -96,16 +96,17 @@ public function register(Request $request)
                 ],
             );
 
-        $data = $request->input();
-            $this->create($data);
-            return redirect("/added");
-        }
-        return view("auth.register");
+
+            $data = $request->input();
+             $this->create($data);
+             session()->put('name', $data['username']);
+            return redirect('added');
+         }
+        return view('auth.register');
+     }
+
+    public function added(){
+       return view('auth.added', ['user' => session()->get('name')]);
     }
 
-
-    public function added(Request $request){
-        $username = $request->input('username');
-        return view('auth.added', ['username'=>$username]);
-    }
 }
